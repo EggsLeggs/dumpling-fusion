@@ -1,5 +1,6 @@
+
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, Firestore, enableMultiTabIndexedDbPersistence, CACHE_SIZE_UNLIMITED } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,6 +20,25 @@ if (!getApps().length) {
 
 const db: Firestore = getFirestore(app);
 
+// Enable multi-tab offline persistence
+enableMultiTabIndexedDbPersistence(db, { cacheSizeBytes: CACHE_SIZE_UNLIMITED })
+  .then(() => {
+    console.log("Offline persistence enabled for Firestore across multiple tabs.");
+  })
+  .catch((err: any) => { 
+    if (err.code === 'failed-precondition') {
+      console.warn(
+        "Firestore offline persistence: failed-precondition. This may be due to multiple tabs attempting to initialize persistence, persistence already being enabled, or attempting to enable after Firestore usage. Details: ", err.message
+      );
+    } else if (err.code === 'unimplemented') {
+      console.warn(
+        "Firestore offline persistence failed: The current browser does not support all of the features required to enable persistence."
+      );
+    } else {
+      console.error("Firestore offline persistence failed with error: ", err);
+    }
+  });
+
 export { app, db };
 
 // Note: You need to create a .env.local file in the root of your project
@@ -27,3 +47,4 @@ export { app, db };
 // NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
 // NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 // ... and so on.
+

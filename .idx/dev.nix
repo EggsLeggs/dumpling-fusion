@@ -3,10 +3,11 @@
 {pkgs}: {
   # Which nixpkgs channel to use.
   channel = "stable-24.11"; # or "unstable"
-  # Use https://search.nixos.org/packages to find packages
+  # Use https://sYearch.nixos.org/packages to find packages
   packages = [
-    pkgs.nodejs_20
+    pkgs.nodejs_22
     pkgs.zulu
+    pkgs.nodePackages.firebase-tools
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -25,7 +26,7 @@
     workspace = {
       onCreate = {
         default.openFiles = [
-          "src/app/page.tsx"
+          "site/src/app/page.tsx"
         ];
       };
     };
@@ -34,6 +35,7 @@
       enable = true;
       previews = {
         web = {
+          cwd = "site";
           command = ["npm" "run" "dev" "--" "--port" "$PORT" "--hostname" "0.0.0.0"];
           manager = "web";
         };
